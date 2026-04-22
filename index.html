@@ -1,43 +1,6 @@
-addMsg({}, note || Sent ${amt} MINIMA, new Date(), true, {
-          amt: parseFloat(amt).toFixed(4),
-          to: addr.slice(0,12)+'…'
-        });
-        showToast('Transaction sent ✓');
-        // Refresh balance
-        fetchBalance();
-      } else {
-        txStatus.textContent = '✗ ' + (res && res.error ? res.error : 'Transaction failed');
-        txBtn.disabled = false;
-        txBtn.textContent = 'Retry';
-      }
-    });
-  } else {
-    // ── DEMO simulation ──
-    txStatus.textContent = 'Demo: simulating transaction…';
-    setTimeout(() => {
-      closeModal();
-      addMsg({}, note || Sent ${amt} MINIMA, new Date(), true, {
-        amt: parseFloat(amt).toFixed(4),
-        to: addr.slice(0,12)+'…'
-      });
-      showToast('Demo TX logged (no real funds sent)');
-    }, 1200);
-  }
-
-  // Clear inputs after action
-  document.getElementById('tx-addr').value = '';
-  document.getElementById('tx-amt').value  = '';
-  document.getElementById('tx-note').value = '';
+{
+  "name": "MiniTalk",
+  "icon": "favicon.ico",
+  "version": "1.0",
+  "description": "Decentralised chat on Minima"
 }
-
-// ══════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3200);
-}
-</script>
-</body>
-</html>
