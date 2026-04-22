@@ -1,39 +1,49 @@
-<script>
-    let isMinimaReady = false;
 
-    // Initialize Minima
-    Minima.init(function(msg) {
-        console.log("Minima Event:", msg.event);
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minima Web Portal</title>
+    <script src="https://m.minima.global/js/minima.js"></script>
+</head>
+<body style="background-color: #121212; color: white; font-family: sans-serif; text-align: center; padding: 50px;">
 
-        if (msg.event === "inited") {
-            isMinimaReady = true;
-            console.log("Minima is ready");
-        }
-    });
+    <h1>Minima Web Portal</h1>
+    <p>Status: <span id="connection-status" style="color: #ff3333;">Disconnected</span></p>
 
-    // Button click
-    document.getElementById('btn').onclick = function() {
+    <button id="connectBtn" style="padding: 15px 30px; font-size: 16px; cursor: pointer; background-color: #31f031; border: none; border-radius: 5px; font-weight: bold; color: black;">
+        CONNECT TO MINIMASK
+    </button>
 
-        if (typeof Minima === "undefined") {
-            alert("MiniMask not detected. Open this in Minima browser.");
-            return;
-        }
+    <div id="wallet-info" style="margin-top: 30px; display: none; background: #222; padding: 20px; border-radius: 10px;">
+        <p><strong>Your Wallet Address:</strong></p>
+        <p id="address" style="color: #31f031; word-break: break-all; font-family: monospace;"></p>
+    </div>
 
-        if (!isMinimaReady) {
-            alert("Minima not ready yet. Try again...");
-            return;
-        }
-
-        // Correct command
-        Minima.cmd("getaddress", function(res) {
-            console.log(res);
-
-            if (res.status) {
-                document.getElementById('address-display').innerText = res.response.address;
-                document.getElementById('btn').innerText = "CONNECTED";
-            } else {
-                alert("Error: " + res.error);
+    <script>
+        // Start the Minima connection
+        Minima.init(function(msg) {
+            if(msg.event == "connected") {
+                document.getElementById('connection-status').innerText = "Ready!";
+                document.getElementById('connection-status').style.color = "#31f031";
             }
         });
-    };
-</script>
+
+        // What happens when you click the button
+        document.getElementById('connectBtn').onclick = function() {
+            // Ask the wallet for an address
+            Minima.cmd("getaddress", function(res) {
+                if(res.status) {
+                    // Show the address on the screen
+                    document.getElementById('wallet-info').style.display = "block";
+                    document.getElementById('address').innerText = res.response.address;
+                    document.getElementById('connectBtn').innerText = "WALLET CONNECTED";
+                    document.getElementById('connectBtn').style.backgroundColor = "#555";
+                } else {
+                    alert("Please unlock your MiniMask extension first!");
+                }
+            });
+        };
+    </script>
+
+</body>
+</html>
