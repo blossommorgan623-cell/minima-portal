@@ -1,38 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Minima Connect</title>
-    <script src="https://m.minima.global/js/minima.js"></script>
-</head>
-<body style="background-color: black; color: white; text-align: center; padding-top: 100px; font-family: sans-serif;">
+<script>
+    let isMinimaReady = false;
 
-    <h1>Minima Portal</h1>
-    
-    <button id="btn" style="padding: 20px; background: #31f031; font-weight: bold; cursor: pointer;">
-        CLICK TO CONNECT
-    </button>
+    // Initialize Minima
+    Minima.init(function(msg) {
+        console.log("Minima Event:", msg.event);
 
-    <h2 id="address-display" style="margin-top: 20px; color: #31f031;"></h2>
+        if (msg.event === "inited") {
+            isMinimaReady = true;
+            console.log("Minima is ready");
+        }
+    });
 
-    <script>
-        document.getElementById('btn').onclick = function() {
-            console.log("Button clicked...");
-            
-            // This is the direct command to MiniMask
-            Minima.cmd("getaddress", function(res) {
-                console.log(res);
-                if(res.status) {
-                    document.getElementById('address-display').innerText = res.response.address;
-                    document.getElementById('btn').innerText = "CONNECTED";
-                } else {
-                    alert("Error: " + res.error + "\n\nMake sure MiniMask is UNLOCKED!");
-                }
-            });
-        };
+    // Button click
+    document.getElementById('btn').onclick = function() {
 
-        Minima.init(function(msg) {
-            console.log("Minima Status: " + msg.event);
+        if (typeof Minima === "undefined") {
+            alert("MiniMask not detected. Open this in Minima browser.");
+            return;
+        }
+
+        if (!isMinimaReady) {
+            alert("Minima not ready yet. Try again...");
+            return;
+        }
+
+        // Correct command
+        Minima.cmd("getaddress", function(res) {
+            console.log(res);
+
+            if (res.status) {
+                document.getElementById('address-display').innerText = res.response.address;
+                document.getElementById('btn').innerText = "CONNECTED";
+            } else {
+                alert("Error: " + res.error);
+            }
         });
-    </script>
-</body>
-</html>
+    };
+</script>
