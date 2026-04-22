@@ -7,42 +7,40 @@
 <body style="background-color: #121212; color: white; font-family: sans-serif; text-align: center; padding: 50px;">
 
     <h1>Minima Web Portal</h1>
-    <p>Status: <span id="connection-status" style="color: #ff3333;">Disconnected</span></p>
+    <p>Status: <span id="status" style="color: #ffcc00;">Checking for Wallet...</span></p>
 
     <button id="connectBtn" style="padding: 15px 30px; font-size: 16px; cursor: pointer; background-color: #31f031; border: none; border-radius: 5px; font-weight: bold; color: black;">
         CONNECT TO MINIMASK
     </button>
 
-    <div id="wallet-info" style="margin-top: 30px; display: none; background: #222; padding: 20px; border-radius: 10px;">
+    <div id="wallet-info" style="margin-top: 30px; display: none; background: #1e1e1e; padding: 20px; border: 1px solid #333; border-radius: 10px;">
         <p><strong>Your Wallet Address:</strong></p>
         <p id="address" style="color: #31f031; word-break: break-all; font-family: monospace;"></p>
     </div>
 
     <script>
-        // Start the Minima connection
+        // Start Minima
         Minima.init(function(msg) {
             if(msg.event == "connected") {
-                document.getElementById('connection-status').innerText = "Ready!";
-                document.getElementById('connection-status').style.color = "#31f031";
+                document.getElementById('status').innerText = "Wallet Detected!";
+                document.getElementById('status').style.color = "#31f031";
             }
         });
 
-        // What happens when you click the button
         document.getElementById('connectBtn').onclick = function() {
-            // Ask the wallet for an address
+            // This command asks MiniMask for your address
             Minima.cmd("getaddress", function(res) {
                 if(res.status) {
-                    // Show the address on the screen
                     document.getElementById('wallet-info').style.display = "block";
                     document.getElementById('address').innerText = res.response.address;
-                    document.getElementById('connectBtn').innerText = "WALLET CONNECTED";
+                    document.getElementById('connectBtn').innerText = "CONNECTED";
                     document.getElementById('connectBtn').style.backgroundColor = "#555";
+                    document.getElementById('status').innerText = "Successfully Interacting!";
                 } else {
-                    alert("Please unlock your MiniMask extension first!");
+                    alert("Click the MiniMask icon in your browser and unlock it first!");
                 }
             });
         };
     </script>
-
 </body>
 </html>
