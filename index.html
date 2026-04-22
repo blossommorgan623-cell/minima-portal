@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minima Web Portal</title>
+</head>
+<body style="background-color: #121212; color: white; font-family: sans-serif; text-align: center; padding: 50px;">
+
+    <h1>My Minima Web Portal</h1>
+    <p>Building on the Minima Network</p>
+
+    <button id="connectBtn" style="padding: 15px 30px; font-size: 16px; cursor: pointer; background-color: #31f031; border: none; border-radius: 5px;">
+        Connect to Minimask
+    </button>
+
+    <p id="status" style="margin-top: 20px; color: #888;"></p>
+
+    <script>
+        document.getElementById('connectBtn').onclick = function() {
+            if (window.minima) {
+                window.minima.run("getaddress", function(res) {
+                    if(res.status) {
+                        document.getElementById('status').innerText = "Connected! Address: " + res.response.address;
+                    }
+                });
+            } else {
+                alert("Please make sure Minimask is installed and open!");
+            }
+        };
+    </script>
+
+</body>
+</html>
