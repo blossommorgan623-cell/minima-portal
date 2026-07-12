@@ -1,0 +1,10 @@
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto('https://zealy.io/cw/chainersnft/questboard/f6185b3a-a38d-4ca1-9c06-874d12a2f70c/543a36a0-2435-4290-9047-d1a892fa27b3');
+  await page.waitForTimeout(5000);
+  await page.screenshot({ path: 'chainers_quiz.png', fullPage: true });
+  await browser.close();
+})();
