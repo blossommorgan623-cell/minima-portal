@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Zealy Fast Auto-Claim
+// @name         Zealy Fast Auto-Claim & Quiz Solver
 // @namespace    http://tampermonkey.net/
-// @version      2.1
-// @description  Instant auto-claim helper for Zealy with zero delay
+// @version      3.0
+// @description  Instant auto-claim helper and quiz option solver for Zealy with zero delay
 // @match        https://zealy.io/*
 // @grant        none
 // ==/UserScript==
@@ -12,6 +12,43 @@
 
     let isClaiming = false;
 
+    function autoSelectQuizAnswers() {
+        // Look for quiz / survey option elements inside active quest containers/modals
+        const selectors = [
+            'button[role="radio"]',
+            '[role="radio"]',
+            '[role="option"]',
+            'label:has(input[type="radio"])',
+            'input[type="radio"]',
+            'div[class*="option"]',
+            'button[class*="option"]'
+        ];
+
+        for (const selector of selectors) {
+            const elements = document.querySelectorAll(selector);
+            for (let i = 0; i < elements.length; i++) {
+                const el = elements[i];
+                if (el.offsetParent !== null && !el.disabled) {
+                    const isChecked = el.getAttribute('aria-checked') === 'true' ||
+                                      el.checked === true ||
+                                      el.classList.contains('active') ||
+                                      el.classList.contains('selected');
+
+                    if (!isChecked) {
+                        try {
+                            el.click();
+                            console.log('[Fast Auto-Claim] Selected quiz option:', el);
+                        } catch (err) {
+                            console.error('[Fast Auto-Claim] Error clicking quiz option:', err);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     function findClaimButton() {
         const buttons = document.querySelectorAll('button');
         for (let i = 0; i < buttons.length; i++) {
@@ -19,7 +56,13 @@
             if (btn.disabled || btn.offsetParent === null) continue;
 
             const text = btn.innerText.trim().replace(/\s+/g, ' ').toLowerCase();
-            if (text === 'claim' || text.includes('claim reward') || text === 'claim quest') {
+            if (
+                text === 'claim' ||
+                text.includes('claim reward') ||
+                text === 'claim quest' ||
+                text === 'next' ||
+                text === 'submit'
+            ) {
                 return btn;
             }
         }
@@ -29,19 +72,22 @@
     function autoClaim() {
         if (isClaiming) return;
 
+        // First attempt to select quiz answer if present
+        autoSelectQuizAnswers();
+
         const btn = findClaimButton();
         if (btn) {
             isClaiming = true;
 
             try {
                 btn.click();
-                console.log('[Fast Auto-Claim] Claim button clicked instantly.');
+                console.log('[Fast Auto-Claim] Action/Claim button clicked instantly.');
             } catch (err) {
                 console.error('[Fast Auto-Claim] Click execution error:', err);
             } finally {
                 setTimeout(() => {
                     isClaiming = false;
-                }, 300);
+                }, 100);
             }
         }
     }
@@ -63,4 +109,5 @@
     });
 
     autoClaim();
+    setInterval(autoClaim, 200);
 })();
