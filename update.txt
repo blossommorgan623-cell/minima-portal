@@ -1,1 +1,83 @@
+// ==UserScript==
+// @name         Zealy Fast Auto-Claim
+// @namespace    http://tampermonkey.net/
+// @version      2.0
+// @description  Optimized ultra-fast auto-claim helper for Zealy without triggering Cloudflare verification
+// @match        https://zealy.io/*
+// @grant        none
+// ==/UserScript==
 
+(function () {
+    'use strict';
+
+    // A small delay (50-120ms) prevents Cloudflare Turnstile anti-bot detection
+    // triggered by immediate 0ms automated clicks right when elements mount.
+    const MIN_DELAY = 50;  // ms
+    const MAX_DELAY = 120; // ms
+
+    let isClaiming = false;
+
+    function getRandomDelay(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function findClaimButton() {
+        const buttons = document.querySelectorAll('button');
+        for (let i = 0; i < buttons.length; i++) {
+            const btn = buttons[i];
+            if (btn.disabled || btn.offsetParent === null) continue;
+
+            const text = btn.innerText.trim().replace(/\s+/g, ' ').toLowerCase();
+            if (text === 'claim' || text.includes('claim reward') || text === 'claim quest') {
+                return btn;
+            }
+        }
+        return null;
+    }
+
+    function autoClaim() {
+        if (isClaiming) return;
+
+        const btn = findClaimButton();
+        if (btn) {
+            isClaiming = true;
+            const delay = getRandomDelay(MIN_DELAY, MAX_DELAY);
+
+            console.log(`[Fast Auto-Claim] Claim button detected. Executing click in ${delay}ms...`);
+
+            setTimeout(() => {
+                try {
+                    btn.click();
+                    console.log('[Fast Auto-Claim] Claim button clicked.');
+                } catch (err) {
+                    console.error('[Fast Auto-Claim] Click execution error:', err);
+                } finally {
+                    // Lock reset timeout to prevent rapid duplicate click submissions
+                    setTimeout(() => {
+                        isClaiming = false;
+                    }, 1000);
+                }
+            }, delay);
+        }
+    }
+
+    // Efficient MutationObserver watching DOM mutations
+    const observer = new MutationObserver((mutations) => {
+        if (isClaiming) return;
+
+        for (let i = 0; i < mutations.length; i++) {
+            if (mutations[i].addedNodes.length > 0) {
+                autoClaim();
+                break;
+            }
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    // Check once upon initial script injection
+    autoClaim();
+})();
